@@ -166,7 +166,7 @@ static uint64_t lai_perform_read(lai_nsnode_t *opregion, size_t access_size, siz
 
     if (opregion->op_override) {
         if (instance->trace & LAI_TRACE_IO)
-            lai_debug("lai_perform_read: %lu-bit read from overridden opregion at %lx (address "
+            lai_debug("lai_perform_read: %lu-bit read from overridden opregion at %llx (address "
                       "space %02u)",
                       access_size, opregion->op_base + offset, opregion->op_address_space);
         switch (access_size) {
@@ -193,10 +193,10 @@ static uint64_t lai_perform_read(lai_nsnode_t *opregion, size_t access_size, siz
         switch (opregion->op_address_space) {
             case ACPI_OPREGION_MEMORY: {
                 if (instance->trace & LAI_TRACE_IO)
-                    lai_debug("lai_perform_read: %lu-bit read from MMIO at %lx", access_size,
+                    lai_debug("lai_perform_read: %lu-bit read from MMIO at %llx", access_size,
                               opregion->op_base + offset);
                 if ((opregion->op_base + offset) & ((access_size / 8) - 1))
-                    lai_warn("lai_perform_read: Unaligned %lu-bit read from MMIO at %lx",
+                    lai_warn("lai_perform_read: Unaligned %lu-bit read from MMIO at %llx",
                              access_size, opregion->op_base + offset);
                 if (!laihost_map)
                     lai_panic(
@@ -223,7 +223,7 @@ static uint64_t lai_perform_read(lai_nsnode_t *opregion, size_t access_size, siz
             }
             case ACPI_OPREGION_IO: {
                 if (instance->trace & LAI_TRACE_IO)
-                    lai_debug("lai_perform_read: %lu-bit read from I/O port at %lx", access_size,
+                    lai_debug("lai_perform_read: %lu-bit read from I/O port at %llx", access_size,
                               opregion->op_base + offset);
                 if (!laihost_inb || !laihost_inw || !laihost_ind)
                     lai_panic("lai_perform_read: The laihost_in{b,w,d} functions need to be "
@@ -254,7 +254,7 @@ static uint64_t lai_perform_read(lai_nsnode_t *opregion, size_t access_size, siz
                 uint8_t fun = (uint8_t)(adr & 0xFF);
                 if (instance->trace & LAI_TRACE_IO)
                     lai_debug("lai_perform_read: %lu-bit read from PCI config of "
-                              "%04lx:%02lx:%02x.%02x at %lx",
+                              "%04llx:%02llx:%02x.%02x at %llx",
                               access_size, seg, bbn, slot, fun, opregion->op_base + offset);
                 if (!laihost_pci_readb || !laihost_pci_readw || !laihost_pci_readd)
                     lai_panic("lai_perform_read: The laihost_pci_read{b,w,d} functions need to be "
@@ -285,7 +285,7 @@ static void lai_perform_write(lai_nsnode_t *opregion, size_t access_size, size_t
     struct lai_instance *instance = lai_current_instance();
     if (opregion->op_override) {
         if (instance->trace & LAI_TRACE_IO)
-            lai_debug("lai_perform_write: %lu-bit write of %lx to overridden opregion at %lx "
+            lai_debug("lai_perform_write: %lu-bit write of %llx to overridden opregion at %llx "
                       "(address space %02u)",
                       access_size, opregion->op_base + offset, value, opregion->op_address_space);
         switch (access_size) {
@@ -312,10 +312,10 @@ static void lai_perform_write(lai_nsnode_t *opregion, size_t access_size, size_t
         switch (opregion->op_address_space) {
             case ACPI_OPREGION_MEMORY: {
                 if (instance->trace & LAI_TRACE_IO)
-                    lai_debug("lai_perform_write: %lu-bit write of %lx to MMIO at %lx", access_size,
+                    lai_debug("lai_perform_write: %lu-bit write of %llx to MMIO at %llx", access_size,
                               value, opregion->op_base + offset);
                 if ((opregion->op_base + offset) & ((access_size / 8) - 1))
-                    lai_warn("lai_perform_write: Unaligned %lu-bit write of %lx to MMIO at %lx",
+                    lai_warn("lai_perform_write: Unaligned %lu-bit write of %llx to MMIO at %llx",
                              access_size, value, opregion->op_base + offset);
                 if (!laihost_map)
                     lai_panic(
@@ -342,7 +342,7 @@ static void lai_perform_write(lai_nsnode_t *opregion, size_t access_size, size_t
             }
             case ACPI_OPREGION_IO: {
                 if (instance->trace & LAI_TRACE_IO)
-                    lai_debug("lai_perform_write: %lu-bit write of %lx to I/O port at %lx",
+                    lai_debug("lai_perform_write: %lu-bit write of %llx to I/O port at %llx",
                               access_size, value, opregion->op_base + offset);
                 if (!laihost_outb || !laihost_inw || !laihost_outd)
                     lai_panic("lai_perform_write: The laihost_out{b,w,d} functions need to be "
@@ -372,8 +372,8 @@ static void lai_perform_write(lai_nsnode_t *opregion, size_t access_size, size_t
                 uint8_t slot = (uint8_t)(adr >> 16);
                 uint8_t fun = (uint8_t)(adr & 0xFF);
                 if (instance->trace & LAI_TRACE_IO)
-                    lai_debug("lai_perform_write: %lu-bit write of %lx to PCI config of "
-                              "%04lx:%02lx:%02x.%02x at %lx",
+                    lai_debug("lai_perform_write: %lu-bit write of %llx to PCI config of "
+                              "%04llx:%02llx:%02x.%02x at %llx",
                               access_size, value, seg, bbn, slot, fun, opregion->op_base + offset);
                 if (!laihost_pci_writeb || !laihost_pci_writew || !laihost_pci_writed)
                     lai_panic("lai_perform_write: The laihost_pci_write{b,w,d} functions need to "
@@ -447,7 +447,7 @@ void lai_read_field_internal(uint8_t *destination, lai_nsnode_t *field) {
     while (progress < field->fld_size) {
         uint64_t bit_offset = (field->fld_offset + progress) & (access_size - 1);
         size_t access_bits = LAI_MIN(field->fld_size - progress, access_size - bit_offset);
-        uint64_t mask = (UINT64_C(1) << access_bits) - 1ull;
+        uint64_t mask = ((uint64_t)1 << access_bits) - 1ull;
 
         uint64_t value = 0;
         if (field->type == LAI_NAMESPACE_FIELD || field->type == LAI_NAMESPACE_BANKFIELD) {
@@ -476,7 +476,7 @@ void lai_write_field_internal(uint8_t *source, lai_nsnode_t *field) {
     while (progress < field->fld_size) {
         uint64_t bit_offset = (field->fld_offset + progress) & (access_size - 1);
         size_t access_bits = LAI_MIN(field->fld_size - progress, access_size - bit_offset);
-        size_t mask = ((UINT64_C(1) << access_bits) - 1) << bit_offset;
+        size_t mask = (((uint64_t)1 << access_bits) - 1) << bit_offset;
 
         size_t write_flag = (field->fld_flags >> 5) & 0x0F;
 

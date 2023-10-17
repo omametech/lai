@@ -1074,7 +1074,7 @@ static lai_api_error_t lai_exec_reduce_op(int opcode, lai_state_t *state,
                 LAI_ENSURE(!error);
             } else {
                 LAI_CLEANUP_FREE_STRING char *path = lai_stringify_node_path(node);
-                lai_warn("Unhandled Notify(%s, 0x%lx)", path, code.integer);
+                lai_warn("Unhandled Notify(%s, 0x%llx)", path, code.integer);
             }
             break;
         }
@@ -1159,7 +1159,7 @@ static lai_api_error_t lai_exec_reduce_op(int opcode, lai_state_t *state,
             if (!fatal_arg.integer)
                 fatal_arg.integer = 0;
 
-            lai_panic("FatalOp in AML, Type: %02lx, Data: %08lX, Arg: %lx\n", fatal_type.integer,
+            lai_panic("FatalOp in AML, Type: %02llx, Data: %08llX, Arg: %llx\n", fatal_type.integer,
                       fatal_data.integer, fatal_arg.integer);
             break;
         }
